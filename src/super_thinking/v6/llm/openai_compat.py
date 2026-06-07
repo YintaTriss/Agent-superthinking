@@ -7,7 +7,10 @@ Provides a drop-in OpenAI-compatible LLM provider.
 from __future__ import annotations
 
 import os
+import socket
 import logging
+import ipaddress
+from urllib.parse import urlparse
 from typing import Any
 
 from .provider import LLMProvider
@@ -56,6 +59,7 @@ class OpenAICompatProvider:
                 "Set it via: export OPENAI_API_KEY=your_key_here"
             )
         self._base_url = base_url or os.environ.get("OPENAI_BASE_URL", "http://localhost:8000")
+        self._validate_url(self._base_url)  # SSRF check
         self._model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
         self._timeout_s = float(os.environ.get("OPENAI_TIMEOUT_S", timeout_s))
         self._default_temperature = default_temperature
@@ -67,6 +71,30 @@ class OpenAICompatProvider:
             timeout=self._timeout_s,
         )
         logger.info(f"OpenAICompatProvider initialized: model={self._model}, base_url={self._base_url}")
+
+    def _validate_url(self, url: str) -> None:
+        """Block obvious SSRF targets: private IPs, loopback, link-local."""
+        try:
+            parsed = urlparse(url)
+            host = parsed.hostname or ""
+            # Skip localhost/loopback for local dev servers
+            if host in ("localhost", "127.0.0.1", "::1"):
+                return
+            # Resolve and check for private/internal IPs
+            import socket
+            try:
+                addr = socket.gethostbyname(host)
+                ip = ipaddress.ip_address(addr)
+                if ip.is_private or ip.is_loopback or ip.is_link_local:
+                    raise ValueError(
+                        f"OPENAI_BASE_URL points to internal/private IP {addr}: {url}"
+                    )
+            except socket.gaierror:
+                logger.warning(f"Could not resolve hostname {host} in OPENAI_BASE_URL")
+        except Exception as e:
+            if isinstance(e, ValueError):
+                raise
+            logger.warning(f"URL validation skipped: {e}")
 
     def complete(
         self,
@@ -140,9 +168,9 @@ class OpenAICompatProvider:
         raw = response.choices[0].message.content or "{}"
         try:
             return json.loads(raw)
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse JSON response, returning empty dict")
-            return {}
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parse failed: {e}\nRaw response: {raw[:500]}")
+            raise ValueError(f"LLM returned invalid JSON: {e}") from e
 
     def __repr__(self) -> str:
         return f"OpenAICompatProvider(model={self._model!r}, base_url={self._base_url!r})"
