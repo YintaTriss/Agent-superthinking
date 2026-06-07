@@ -86,7 +86,7 @@ class LLMExpertSelector:
 
         # 请求LLM选择
         prompt = _EXPERT_DOMAIN_PROMPT.format(
-            question=question,
+            question=json.dumps(question),
             expert_list=expert_list_text,
         )
 

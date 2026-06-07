@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 from typing import Any, Protocol, runtime_checkable, TYPE_CHECKING
+import json
 import logging
 
 from ..types import (
@@ -275,7 +276,7 @@ class DefaultModerator:
         prompt = f"""你是辩论主持人。分析以下辩论状态，决定下一步动作。
 
 ## 当前状态
-- 辩论问题：「{session.question}」
+- 辩论问题：{json.dumps(session.question)}
 - 当前轮次：第{round_num}轮（最多{self._config.max_rounds}轮）
 - 活跃专家：{[e.name for e in session.active_experts]}
 
@@ -350,7 +351,7 @@ class DefaultModerator:
                     decision_kwargs["roster_change"] = RosterChangeRequest(
                         external_consult=ExternalConsultationRequest(
                             expert_id=ExpertId(expert_id),
-                            question=f"关于「{session.question}」，你的专业领域能提供什么独特视角？",
+                            question=f"关于「{json.dumps(session.question)}」，你的专业领域能提供什么独特视角？",
                             context_summary=f"当前第{round_num}轮，近两轮发言：{' | '.join([s[:50] for s in statement_summaries[:3]])}",
                             deadline_s=self._config.external_consultation_timeout_s,
                             max_response_chars=2000,

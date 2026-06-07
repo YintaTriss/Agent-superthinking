@@ -59,16 +59,16 @@ class V5JuryResult:
     
     def __init__(
         self,
-        outputs: list,
-        errors: list,
+        outputs: dict,
+        errors: dict,
         routing_result: Any,
         total_perspectives: int,
         successful: int,
         failed: int,
         session_id: str | None = None,
     ):
-        self.outputs = outputs
-        self.errors = errors
+        self.outputs = outputs  # dict[str, V5CompatibleOutput]
+        self.errors = errors    # dict[str, str] (perspective_id -> error message)
         self.routing_result = routing_result
         self.total_perspectives = total_perspectives
         self.successful = successful
@@ -77,7 +77,7 @@ class V5JuryResult:
     
     def get_outputs(self) -> list:
         """获取输出列表"""
-        return self.outputs
+        return list(self.outputs.values())
     
     def has_errors(self) -> bool:
         """是否有错误"""
@@ -85,7 +85,7 @@ class V5JuryResult:
     
     def get_perspective_ids(self) -> list[str]:
         """获取视角 ID 列表"""
-        return [getattr(o, 'id', str(i)) for i, o in enumerate(self.outputs)]
+        return list(self.outputs.keys())
     
     def __repr__(self) -> str:
         return (
@@ -180,17 +180,17 @@ class JuryAdapter:
     
     def _to_v5_result(self, session) -> V5JuryResult:
         """将 v6 session 转换为 v5 JuryResult"""
-        outputs = []
-        errors = []
+        outputs = {}
+        errors = {}
         
         if session.rounds:
             for stmt in session.rounds[0].statements:
-                # 转换为 v5 格式（简化）
+                # 转换为 v5 格式
                 output = self._convert_statement_to_v5(stmt)
                 if output:
-                    outputs.append(output)
+                    outputs[str(stmt.expert_id)] = output
                 else:
-                    errors.append(f"Failed to convert statement from {stmt.expert_id}")
+                    errors[str(stmt.expert_id)] = f"Failed to convert statement from {stmt.expert_id}"
         
         return V5JuryResult(
             outputs=outputs,
@@ -204,18 +204,19 @@ class JuryAdapter:
     
     def _convert_statement_to_v5(self, stmt: ExpertStatement) -> Any | None:
         """将 v6 ExpertStatement 转换为 v5 输出"""
-        # 创建一个兼容对象
         class V5CompatibleOutput:
             def __init__(self, stmt: ExpertStatement):
-                self.id = str(stmt.expert_id)
-                self.name = stmt.expert_name
-                self.content = stmt.content
+                self.perspective_id = str(stmt.expert_id)
+                self.perspective_name = stmt.expert_name
+                self.analysis = stmt.content
                 self.confidence = stmt.confidence
-                self.role = str(stmt.role)
-                self.warnings = stmt.warnings
+                self.key_points = []
+                self.tags = []
+                self.warnings = list(stmt.warnings) if stmt.warnings else []
+                self.metadata = {"v6_role": str(stmt.role)}
             
             def __repr__(self) -> str:
-                return f"V5Output({self.id}: {self.name})"
+                return f"V5Output({self.perspective_id}: {self.perspective_name})"
         
         return V5CompatibleOutput(stmt)
 
@@ -272,17 +273,13 @@ def wrap_v5_perspective_output(output: Any) -> ExpertStatement:
     """
     from .types import ExpertId
     
-    # 尝试提取字段
-    expert_id = getattr(output, 'id', 'unknown')
-    expert_name = getattr(output, 'name', 'Unknown Expert')
-    content = getattr(output, 'content', str(output))
-    
     return ExpertStatement(
-        expert_id=ExpertId(expert_id),
-        expert_name=expert_name,
+        expert_id=ExpertId(getattr(output, 'perspective_id', 'unknown')),
+        expert_name=getattr(output, 'perspective_name', 'Unknown Expert'),
         role=SpeakRole.INITIAL,
-        content=content,
-        confidence=getattr(output, 'confidence', 0.5),
+        content=getattr(output, 'analysis', str(output)),
+        confidence=float(getattr(output, 'confidence', 0.5)),
+        warnings=tuple(getattr(output, 'warnings', [])),
         raw=output,
     )
 
