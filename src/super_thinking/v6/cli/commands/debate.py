@@ -17,45 +17,35 @@ _DEFAULT_EXPERTS = [
         "name": "苏格拉底",
         "description": "哲学思想 - 辩证法的思维方式",
         "trigger_keywords": ["哲学", "论证", "反思", "辩证", "知识", "思考"],
-        "template": "苏格拉底思考：{question}
-
-通过辩证法进行深入提问。",
+        "template": "苏格拉底思考：{question}\n\n通过辩证法进行深入提问。", 
     },
     {
         "id": "confucius",
         "name": "孔子",
         "description": "中庸思想 - 人情世故",
         "trigger_keywords": ["中庸", "人情", "修身", "治国", "教化", "传承"],
-        "template": "孔子教导：{question}
-
-己所不欲，勿施于人。",
+        "template": "孔子教导：{question}\n\n己所不欲，勿施于人。", 
     },
     {
         "id": "einstein",
         "name": "爱因斯坦",
         "description": "科学思想 - 科学思维与创造力",
         "trigger_keywords": ["推理", "观察", "偏见", "科学", "实验", "研究"],
-        "template": "爱因斯坦观点：{question}
-
-想象力比知识更重要。",
+        "template": "爱因斯坦观点：{question}\n\n想象力比知识更重要。", 
     },
     {
         "id": "musk",
         "name": "马斯克",
         "description": "创业者视角 - 第一性原则思维",
         "trigger_keywords": ["创业", "风险", "企业", "技术", "投资", "市场"],
-        "template": "马斯克思维：{question}
-
-应该用第一性原则思考。",
+        "template": "马斯克思维：{question}\n\n应该用第一性原则思考。", 
     },
     {
         "id": "charlie",
         "name": "查理·芒格",
         "description": "投资者视角 - 多元思维模型",
         "trigger_keywords": ["投资", "风险", "价值", "会计", "心理", "逆向"],
-        "template": "查理·芒格思维：{question}
-
-要学会多种学科的角度看问题。",
+        "template": "查理·芒格思维：{question}\n\n要学会多种学科的角度看问题。", 
     },
 ]
 

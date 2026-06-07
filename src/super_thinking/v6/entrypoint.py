@@ -345,7 +345,7 @@ def _run_single_round_for(
         status=SessionStatus.COMPLETED,
     )
 
-    recorder.on_session_end()
+    recorder.on_session_end(session)
 
     return session
 

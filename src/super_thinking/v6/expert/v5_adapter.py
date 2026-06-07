@@ -99,8 +99,7 @@ class V5PerspectiveAdapter:
             for c in prompt.constraints:
                 parts.append(f"  - {c}")
         
-        return "
-".join(parts)
+        return "\n".join(parts)
     
     def _compose_context(self, prompt: SpeakPrompt) -> dict:
         """组合上下文。"""

@@ -19,6 +19,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
+dependencies = [
+    "typer>=0.9.0",
+]
+
 [project.optional-dependencies]
 openclaw = []  # OpenClaw integration hooks
 langchain = ["langchain>=0.1.0"]  # LangChain adapter

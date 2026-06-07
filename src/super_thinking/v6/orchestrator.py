@@ -8,6 +8,7 @@ v6 顶层协调器模块
 from __future__ import annotations
 
 import logging
+import dataclasses
 import os
 import time
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
@@ -136,11 +137,11 @@ class DebateOrchestrator:
                     method="select_initial_panel",
                     cause=str(e),
                 ) from e
-            session = session.model_copy(update={
-                "initial_panel": initial_panel,
-                "active_experts": initial_panel,
-                "status": SessionStatus.RUNNING,
-            })
+            session = dataclasses.replace(session,
+                initial_panel=initial_panel,
+                active_experts=initial_panel,
+                status=SessionStatus.RUNNING,
+            )
 
             # 3. 执行辩论循环
             session = self._run_debate_loop(session)
@@ -150,10 +151,10 @@ class DebateOrchestrator:
 
         except Exception as e:
             logger.error(f"Debate failed: {e}")
-            session = session.model_copy(update={
-                "status": SessionStatus.ABORTED,
-                "stats": {**session.stats, "error": str(e)},
-            })
+            session = dataclasses.replace(session,
+                status=SessionStatus.ABORTED,
+                stats={**session.stats, "error": str(e)},
+            )
 
         # 记录结束
         self.recorder.on_session_end(session)
@@ -207,9 +208,9 @@ class DebateOrchestrator:
                 self.recorder.on_convergence(round_obj.convergence_signal)
 
             # 更新会话
-            session = session.model_copy(update={
-                "rounds": session.rounds + (round_obj,),
-            })
+            session = dataclasses.replace(session,
+                rounds=session.rounds + (round_obj,),
+            )
 
             # 决策
             try:
@@ -221,7 +222,7 @@ class DebateOrchestrator:
                     method="decide",
                     cause=str(e),
                 ) from e
-            round_obj = round_obj.model_copy(update={"moderator_decision": decision})
+            round_obj = dataclasses.replace(round_obj, moderator_decision=decision)
 
             self.recorder.on_decision(decision)
 
@@ -249,11 +250,11 @@ class DebateOrchestrator:
                         # 记录咨询结果
                         self.recorder.on_external_consultation(consultation_result)
                         # 存入 session，继续辩论循环（不打断当前轮次）
-                        session = session.model_copy(update={
-                            "external_consultations": (
+                        session = dataclasses.replace(session,
+                            external_consultations=(
                                 session.external_consultations + (consultation_result,)
                             ),
-                        })
+                        )
                         logger.info(
                             f"External consultation complete: timed_out={consultation_result.timed_out}, "
                             f"response_len={len(consultation_result.response_text)}"
@@ -299,7 +300,7 @@ class DebateOrchestrator:
         # 选择一个专家
         experts = self.expert_pool.list_registered()[:1]
         if not experts:
-            return session.model_copy(update={"status": SessionStatus.ABORTED})
+            return dataclasses.replace(session, status=SessionStatus.ABORTED)
 
         expert = experts[0]
 
@@ -330,12 +331,12 @@ class DebateOrchestrator:
             moderator_decision=None,
         )
 
-        return session.model_copy(update={
-            "initial_panel": (expert,),
-            "active_experts": (expert,),
-            "rounds": (round_obj,),
-            "status": SessionStatus.COMPLETED,
-        })
+        return dataclasses.replace(session,
+            initial_panel=(expert,),
+            active_experts=(expert,),
+            rounds=(round_obj,),
+            status=SessionStatus.COMPLETED,
+        )
 
     def run_single_round(self, session: DebateSession) -> Round:
         """
@@ -369,11 +370,11 @@ class DebateOrchestrator:
         else:
             status = SessionStatus.COMPLETED
 
-        return session.model_copy(update={
-            "final_consensus": consensus,
-            "final_stmts": final_stmts,
-            "status": status,
-        })
+        return dataclasses.replace(session,
+            final_consensus=consensus,
+            final_stmts=final_stmts,
+            status=status,
+        )
 
 
 # =============================================================================

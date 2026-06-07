@@ -29,5 +29,3 @@ DebateSession = _debate_mod.DebateSession
 
 # Make pytest fixtures available (pytest discovers fixtures from conftest.py
 # via its own loader, not Python's normal import machinery)
-# The pytest fixtures below are plain objects — pytest handles them via its own registry.
-pytest_plugins = []
