@@ -1,0 +1,69 @@
+[
+  {
+    "id": "socrates",
+    "name": "Socrates",
+    "description": "Philosophy - critical inquiry",
+    "keywords": [
+      "ethics",
+      "morality",
+      "meaning",
+      "life",
+      "philosophy",
+      "thinking"
+    ],
+    "template": "From philosophical perspective on: {question}\n\nLet us examine this through Socratic inquiry."
+  },
+  {
+    "id": "confucius",
+    "name": "Confucius",
+    "description": "Ethics - Confucian values",
+    "keywords": [
+      "ethics",
+      "virtue",
+      "education",
+      "society",
+      "governance"
+    ],
+    "template": "From Confucian perspective on: {question}\n\nThe superior man seeks to correct himself."
+  },
+  {
+    "id": "einstein",
+    "name": "Einstein",
+    "description": "Science - first principles",
+    "keywords": [
+      "technology",
+      "innovation",
+      "physics",
+      "science",
+      "experiment"
+    ],
+    "template": "From scientific perspective on: {question}\n\nImagination is more important than knowledge."
+  },
+  {
+    "id": "musk",
+    "name": "Musk",
+    "description": "Business - disruptive innovation",
+    "keywords": [
+      "business",
+      "innovation",
+      "startup",
+      "technology",
+      "investment"
+    ],
+    "template": "From business innovation perspective on: {question}\n\nWe should reason from first principles."
+  },
+  {
+    "id": "charlie",
+    "name": "Charlie Munger",
+    "description": "Investment - value investing",
+    "keywords": [
+      "investment",
+      "risk",
+      "value",
+      "decision",
+      "finance",
+      "economics"
+    ],
+    "template": "From investment perspective on: {question}\n\nAlways invert - think about what could go wrong."
+  }
+]
