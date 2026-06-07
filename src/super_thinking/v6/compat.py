@@ -33,7 +33,7 @@ from .types import (
 
 if TYPE_CHECKING:
     from .moderator import Moderator
-    from .user_interaction import UserInteraction
+    from .interaction.user_interaction import UserInteraction
 
 logger = logging.getLogger(__name__)
 

@@ -57,6 +57,7 @@ class Jury:
         router: Optional[Router] = None,
         timeout_per_perspective: float = 60.0,
         max_workers: int = 4,
+        _v6_adapter=None,
     ):
         """
         Initialize the Jury.
@@ -66,11 +67,14 @@ class Jury:
             router: Router instance (creates default if None)
             timeout_per_perspective: Max seconds per perspective (default 60s)
             max_workers: Max parallel perspective executions (default 4)
+            _v6_adapter: Internal v6 JuryAdapter instance (set by create_jury).
+                When present, think() delegates to this adapter.
         """
         self._registry = registry
         self._router = router
         self.timeout_per_perspective = timeout_per_perspective
         self.max_workers = max_workers
+        self._v6_adapter = _v6_adapter
 
     @property
     def registry(self) -> Registry:
@@ -95,6 +99,10 @@ class Jury:
     ) -> JuryResult:
         """Execute all activated perspectives and aggregate results.
 
+        ADR-003: When _v6_adapter is set (via create_jury with v6 components),
+        this method delegates to the v6 JuryAdapter to ensure v5 calls
+        go through the v6 single-round退化 mode.
+
         Args:
             input: User's question or problem statement
             context: Additional context to pass to each perspective
@@ -104,6 +112,18 @@ class Jury:
         Returns:
             JuryResult with all perspective outputs and error info
         """
+        # ADR-003: Delegate to v6 adapter when available
+        if self._v6_adapter is not None:
+            logger.info("Jury.think() delegating to v6 JuryAdapter (ADR-003)")
+            result = self._v6_adapter.think(
+                input_text=input,
+                context=context,
+                mode=mode,
+                selective_ids=selective_ids,
+            )
+            # JuryAdapter returns V5JuryResult; return as-is
+            return result
+
         context = context or {}
 
         # Route to determine which perspectives to activate
@@ -382,6 +402,42 @@ def get_jury(
 ) -> Jury:
     """Get a Jury instance."""
     return Jury(registry=registry, router=router)
+
+
+def create_jury(
+    *,
+    llm,
+    expert_pool,
+    methodology_registry,
+    recorder,
+    interaction,
+) -> Jury:
+    """
+    Create a Jury wired to v6 JuryAdapter (ADR-003).
+
+    This makes Jury().think() internally delegate to v6 single-round退化 mode,
+    ensuring I1 backward compatibility while using v6 as the implementation.
+
+    Args:
+        llm: LLMProvider instance
+        expert_pool: ExpertPool instance
+        methodology_registry: MethodologyRegistry instance
+        recorder: SessionRecorder instance
+        interaction: UserInteraction instance
+
+    Returns:
+        Jury instance with v6 adapter wired in
+    """
+    from super_thinking.v6.compat import JuryAdapter
+
+    adapter = JuryAdapter(
+        llm=llm,
+        expert_pool=expert_pool,
+        methodology_registry=methodology_registry,
+        recorder=recorder,
+        interaction=interaction,
+    )
+    return Jury(_v6_adapter=adapter)
 
 
 # Convenience function for simple usage
