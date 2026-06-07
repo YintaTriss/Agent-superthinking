@@ -6,6 +6,7 @@ Moderator - 主持人模块
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, replace
 from typing import Any, Protocol, runtime_checkable, TYPE_CHECKING
 import json
@@ -518,10 +519,11 @@ class DefaultModerator:
         # 获取方法论工具池文本块（仅首次）
         methodology_pool_block = self._get_methodology_pool_block() if is_initial else ""
 
-        statements: list = []
-
-        for expert in session.active_experts:
-            # 构建 prompt
+        # ADR-005: 并行获取所有专家发言（每轮同时调用 expert.speak）
+        # 按字典序排列确保顺序稳定：sorted by expert_id
+        active = sorted(session.active_experts, key=lambda e: e.id)
+        prompts = []
+        for expert in active:
             prompt = SpeakPrompt(
                 session_id=session.session_id,
                 round_number=round_number,
@@ -531,24 +533,29 @@ class DefaultModerator:
                 methodology_hints=methodology_hints,
                 methodology_feedback=methodology_feedback,
             )
-
-            # 如果有方法论工具池文本块，附加到 extra
             if methodology_pool_block:
                 prompt = replace(
                     prompt,
                     extra={**prompt.extra, "methodology_pool_block": methodology_pool_block},
                 )
+            prompts.append((expert, prompt))
 
-            try:
-                stmt = expert.speak(prompt)
-                statements.append(stmt)
-            except Exception as e:
-                logger.error(f"Expert {getattr(expert, 'id', '?')} failed to speak: {e}")
-
-        statements = tuple(statements)
+        statements: list = []
+        with ThreadPoolExecutor() as executor:
+            future_to_expert = {
+                executor.submit(_speak_safe, expert, prompt): expert
+                for expert, prompt in prompts
+            }
+            for future in future_to_expert:
+                expert = future_to_expert[future]
+                try:
+                    stmt = future.result(timeout=60)
+                    statements.append(stmt)
+                except Exception as e:
+                    logger.error(f"Expert {expert.id} failed to speak: {e}")
 
         # §4.1 第3条：检测方法论是否被乱用
-        statements = self._validate_methodology_usage(statements)
+        statements = self._validate_methodology_usage(tuple(statements))
 
         # 构建论点菜单
         menu = self.build_menu(session, statements)
@@ -705,6 +712,15 @@ class DefaultModerator:
 
 Moderator = DefaultModerator
 ModeratorImpl = DefaultModerator
+
+
+# =============================================================================
+# 并行辅助（ADR-005: ThreadPoolExecutor 需要顶级函数，不能用 lambda）
+# =============================================================================
+
+def _speak_safe(expert, prompt):
+    """线程安全地调用 expert.speak()，超时由调用方控制。"""
+    return expert.speak(prompt)
 
 
 def create_moderator(*, llm, config, expert_pool, methodology_registry, recorder,
