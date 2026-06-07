@@ -21,6 +21,7 @@ from ..types import (
 from ..methodology import MethodologyRegistry
 from ..session_recorder import SessionRecorder
 from ..external_consultation import ExternalConsultationManager
+from ..sanitizer import OutputSanitizer, sanitize_llm_output
 from .argument_extractor import ArgumentExtractor
 from .menu_builder import MenuBuilder
 from .expert_selector import LLMExpertSelector
@@ -245,10 +246,12 @@ class DefaultModerator:
         statement_summaries = []
         for rnd in session.rounds[-2:]:
             for stmt in rnd.statements:
+                # LLM 输出嵌入 prompt 前进行消敏（F-3 修复）
+                safe_content = sanitize_llm_output(stmt.content)
                 statement_summaries.append(
                     f"[{stmt.expert_name}]({stmt.role.value}): "
                     f"置信度={stmt.confidence} | "
-                    f"{stmt.content[:150]}..."
+                    f"{safe_content[:150]}..."
                 )
 
         # 收敛信号详情
@@ -264,7 +267,8 @@ class DefaultModerator:
         # 外部咨询历史
         ext_consults = []
         for ec in session.external_consultations[-3:]:
-            ext_consults.append(f"- [{ec.expert_id}]: {ec.response_text[:80]}...")
+            safe_response = sanitize_llm_output(ec.response_text)
+            ext_consults.append(f"- [{ec.expert_id}]: {safe_response[:80]}...")
 
         # 可用专家列表
         available = []

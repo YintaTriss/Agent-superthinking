@@ -171,17 +171,22 @@ class ExpertPool(ExpertPoolProtocol):
         
         expert_ids = result.get("expert_ids", [])
         
-        # Validate and filter expert IDs
+        # Validate and filter expert IDs (F-1 endswith bypass fix)
+        # 仅允许精确匹配，禁止 endswith 前缀猜测
         selected = []
         for eid in expert_ids:
-            if isinstance(eid, str) and eid in self._experts:
+            if not isinstance(eid, str):
+                logger.warning(f"Non-string expert_id rejected: {eid!r}")
+                continue
+            # 精确匹配（主路径）
+            if eid in self._experts:
                 selected.append(self._experts[eid])
-            # Also try without namespace prefix
-            for registered_eid in self._experts:
-                if str(registered_eid).endswith(eid) or eid.endswith(str(registered_eid)):
-                    if self._experts[registered_eid] not in selected:
-                        selected.append(self._experts[registered_eid])
-                        break
+            # 支持 "namespace:id" 格式（仅从 namespace 前缀剥离）
+            elif ":" in eid:
+                _, _, bare = eid.rpartition(":")
+                if bare in self._experts:
+                    selected.append(self._experts[bare])
+                    logger.debug(f"Resolved namespaced expert {eid!r} -> {bare!r}")
         
         # Ensure we return at least min_experts
         if len(selected) < min_experts:

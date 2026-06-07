@@ -2,68 +2,107 @@
   {
     "id": "socrates",
     "name": "Socrates",
-    "description": "Philosophy - critical inquiry",
+    "description": "Philosophy - critical inquiry and ethical examination",
+    "domain": "Philosophy",
     "keywords": [
       "ethics",
       "morality",
       "meaning",
-      "life",
-      "philosophy",
-      "thinking"
+      "philosophy"
     ],
+    "trigger_keywords": [
+      "ethics",
+      "morality",
+      "meaning",
+      "virtue",
+      "good life"
+    ],
+    "is_methodology": false,
     "template": "From philosophical perspective on: {question}\n\nLet us examine this through Socratic inquiry."
   },
   {
     "id": "confucius",
     "name": "Confucius",
-    "description": "Ethics - Confucian values",
+    "description": "Ethics - Confucian values and social harmony",
+    "domain": "Ethics",
     "keywords": [
-      "ethics",
       "virtue",
       "education",
       "society",
       "governance"
     ],
+    "trigger_keywords": [
+      "virtue",
+      "education",
+      "society",
+      "harmony",
+      "governance"
+    ],
+    "is_methodology": false,
     "template": "From Confucian perspective on: {question}\n\nThe superior man seeks to correct himself."
   },
   {
     "id": "einstein",
     "name": "Einstein",
-    "description": "Science - first principles",
+    "description": "Science - first principles and physical intuition",
+    "domain": "Science",
     "keywords": [
-      "technology",
-      "innovation",
       "physics",
       "science",
-      "experiment"
+      "experiment",
+      "relativity"
     ],
+    "trigger_keywords": [
+      "physics",
+      "science",
+      "experiment",
+      "relativity",
+      "universe"
+    ],
+    "is_methodology": false,
     "template": "From scientific perspective on: {question}\n\nImagination is more important than knowledge."
   },
   {
     "id": "musk",
     "name": "Musk",
-    "description": "Business - disruptive innovation",
+    "description": "Business - disruptive innovation and first principles",
+    "domain": "Business",
     "keywords": [
       "business",
-      "innovation",
       "startup",
       "technology",
-      "investment"
+      "disruption"
     ],
+    "trigger_keywords": [
+      "business",
+      "startup",
+      "technology",
+      "disruption",
+      "mars"
+    ],
+    "is_methodology": false,
     "template": "From business innovation perspective on: {question}\n\nWe should reason from first principles."
   },
   {
     "id": "charlie",
     "name": "Charlie Munger",
-    "description": "Investment - value investing",
+    "description": "Investment - value investing and mental models",
+    "domain": "Investment",
     "keywords": [
       "investment",
       "risk",
       "value",
-      "decision",
       "finance",
       "economics"
     ],
+    "trigger_keywords": [
+      "investment",
+      "risk",
+      "value",
+      "Warren Buffett",
+      "lollapalooza"
+    ],
+    "is_methodology": false,
     "template": "From investment perspective on: {question}\n\nAlways invert - think about what could go wrong."
   }
 ]

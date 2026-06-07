@@ -27,6 +27,16 @@
 {prev_convergence_signal}
 ```
 
+> **注**：若本轮为第 1 轮（无上一轮），则 `prev_convergence_signal` 应视为：
+> ```json
+> {{
+>   "consecutive_count": 0,
+>   "score": 0.0,
+>   "converged": false,
+>   "hard_converged": false
+> }}
+> ```
+
 ## 收敛判断算法
 
 ### 综合得分计算

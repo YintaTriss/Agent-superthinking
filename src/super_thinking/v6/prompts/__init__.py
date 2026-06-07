@@ -9,7 +9,8 @@ def load_prompt(name: str) -> str:
     """Load prompt template by filename (without .md extension).
 
     Args:
-        name: Prompt template name (e.g., "MODERATOR_SYSTEM", "EXPERT_SYSTEM")
+        name: Prompt template name (e.g., "moderator_system", "expert_system")
+              All template files use lowercase names.
 
     Returns:
         The prompt template content as a string.
@@ -20,4 +21,4 @@ def load_prompt(name: str) -> str:
     return (PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8")
 
 
-__all__ = ["PROMPTS_DIR"]  # load_prompt reserved for future use (0 refs)
+__all__ = ["PROMPTS_DIR", "load_prompt"]

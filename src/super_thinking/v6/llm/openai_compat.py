@@ -26,7 +26,7 @@ class OpenAICompatProvider:
     Automatically uses environment variables for configuration.
 
     Environment variables:
-        OPENAI_API_KEY     - API key (default: "dummy" for local servers)
+        OPENAI_API_KEY     - API key (required, no default)
         OPENAI_BASE_URL    - Base URL (default: "http://localhost:8000")
         OPENAI_MODEL       - Model name (default: "gpt-4o-mini")
         OPENAI_TIMEOUT_S   - Request timeout in seconds (default: 60.0)
