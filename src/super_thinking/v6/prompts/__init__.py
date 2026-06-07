@@ -20,4 +20,4 @@ def load_prompt(name: str) -> str:
     return (PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8")
 
 
-__all__ = ["PROMPTS_DIR", "load_prompt"]
+__all__ = ["PROMPTS_DIR"]  # load_prompt reserved for future use (0 refs)

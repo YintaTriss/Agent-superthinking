@@ -49,7 +49,12 @@ class OpenAICompatProvider:
                 "Install it with: pip install openai"
             )
 
-        self._api_key = api_key or os.environ.get("OPENAI_API_KEY", "dummy")
+        self._api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        if not self._api_key:
+            raise ValueError(
+                "OPENAI_API_KEY environment variable is not set. "
+                "Set it via: export OPENAI_API_KEY=your_key_here"
+            )
         self._base_url = base_url or os.environ.get("OPENAI_BASE_URL", "http://localhost:8000")
         self._model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
         self._timeout_s = float(os.environ.get("OPENAI_TIMEOUT_S", timeout_s))

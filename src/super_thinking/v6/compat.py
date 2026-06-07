@@ -139,9 +139,9 @@ class JuryAdapter:
     def think(
         self,
         input_text: str,
-        context: dict | None,
-        mode: str,
-        selective_ids: list[str] | None,
+        context: dict | None = None,
+        mode: str = "auto",
+        selective_ids: list[str] | None = None,
     ) -> V5JuryResult:
         """
         v5 think() 方法的替代实现。
