@@ -1,0 +1,37 @@
+enabled_perspectives:
+- failing_perspective
+- generated_decision
+- generated_meta
+- generated_risk
+- magi_debate
+- mao_perspective
+- meta_thinking
+- mock_perspective
+- mock_perspective_2
+- nuwa_meta
+- test_perspective
+- test_perspective_2
+
+v6:
+  mode: debate
+  max_rounds: 5
+  convergence_threshold: 0.65
+  convergence_weights:
+    overlap: 0.4
+    new_arg_density: 0.4
+    drift: 0.2
+  min_initial_experts: 2
+  max_initial_experts: 5
+  recorder:
+    enabled: true
+    path: logs/v6_sessions
+  llm:
+    provider: openai_compat
+    temperature: 0.2
+    max_tokens: 2000
+  external_consultation:
+    enabled: false
+    timeout_s: 30
+    max_per_round: 2
+  interaction:
+    enabled: false
