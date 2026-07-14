@@ -1,4 +1,4 @@
-# conftest.py for test_v6_debate â€” re-exports fixtures from debate_conftest
+# conftest.py for test_v6_debate â€?re-exports fixtures from debate_conftest
 # We use importlib to load debate_conftest by filesystem path.
 import importlib.util
 import sys
@@ -29,5 +29,4 @@ DebateSession = _debate_mod.DebateSession
 
 # Make pytest fixtures available (pytest discovers fixtures from conftest.py
 # via its own loader, not Python's normal import machinery)
-# The pytest fixtures below are plain objects â€” pytest handles them via its own registry.
-pytest_plugins = []
+# The pytest fixtures below are plain objects â€?pytest handles them via its own registry.
