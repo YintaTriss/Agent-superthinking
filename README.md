@@ -30,11 +30,25 @@
     ↓
 ┌──────────────────────────────────────┐
 │  融合层（Fusion）                    │
-│  - 冲突检测                          │
-│  - 共识提炼                          │
-│  - 结构化综合报告                     │
+│  - ConflictDetector 冲突检测         │
+│  - ConsensusFinder 共识提炼          │
+│  - Formatter 结构化综合报告           │
+│  (fusion/conflict.py + consensus.py   │
+│   + formatter.py, 5 files)            │
 └──────────────────────────────────────┘
 ```
+
+
+## 核心组件 (V 6/19 19:19 L1 verify)
+
+| 组件 | 文件 | 类 | 说明 |
+|---|---|---|---|
+| **Router** | `core/router.py` | `class Router` | 路由层 (读取 INDEX_PEOPLE.md + INDEX_METHODS.md) |
+| **Jury** | `core/jury.py:29` | `class JuryResult` | 评审结果 |
+| **Expert** | `v6/expert_statement.py` | `class ExpertStatement` | 专家陈述 |
+| **ConflictDetector** | `fusion/conflict.py` | `class ConflictDetector` | 多视角冲突检测 |
+| **ConsensusFinder** | `fusion/consensus.py` | `class ConsensusFinder` | 共识提炼 |
+| **Formatter** | `fusion/formatter.py` | `class Formatter` | 综合报告格式化 |
 
 ## 双轨专家系统
 
@@ -42,11 +56,11 @@
 
 蒸馏自真实历史人物，捕捉其思维方式。适合：价值观判断、决策启发、人性洞察。
 
-**人物统计：52 位**
+**人物统计：140 expert files / 12 领域** (V 6/19 19:19 L1 verify, 实际 schema.json 数)
 
 | 领域 | 人数 | 代表人物 |
 |------|------|---------|
-| 哲学 | 12 | 苏格拉底、柏拉图、尼采、庄子、康德、马克思... |
+| 哲学 | 12 | 苏格拉底、柏拉图、尼采、庄子、康德、马克思... |  |
 | 科学 | 6 | 爱因斯坦、玻尔、图灵、居里夫人、麦克斯韦、薛定谔 |
 | 心理/社会 | 6 | 弗洛伊德、荣格、福柯、米德、埃里克森、罗杰斯 |
 | 经济/历史 | 6 | 凯恩斯、哈耶克、亚当·斯密、稻盛和夫、基辛格、李光耀 |
